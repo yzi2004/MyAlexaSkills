@@ -1,0 +1,15 @@
+{
+  "name": "nhkpodcast-skill",
+  "version": "0.0.0",
+  "description": "NHKPodcastSkill",
+  "main": "index.js",
+  "author": {
+    "name": "stream651_g-yo"
+  },
+  "devDependencies": {
+    "@types/node": "10.5.1",
+    "ask-sdk-core": "2.0.7",
+    "ask-sdk-model": "1.3.1",
+    "sync-request": "6.0.0"
+  }
+}

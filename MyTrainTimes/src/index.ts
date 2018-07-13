@@ -5,7 +5,7 @@ import moment from "moment";
 
 const HELP_SPEECH = "現時点、新宿方面を行くの場合、新宿方面、と言ってください。小田原方面を行くの場合、小田原方面、と言ってください。"
     + "10分以後出発の場合、10分後、又は、10分後の新宿方面、と言ってください。"
-    + "指定時間出発の場合、平日の8時半から、又は、休日の16時12分から新宿方面、と言ってください。";
+    + "指定時間出発の場合、平日の午前8時半から、又は、休日の午後4時12分から新宿方面、と言ってください。";
 
 const GetTrainSch = function (weekDay: string, timeBase: moment.Moment, dir: string,
     output: (speech: string, cardTitle: string, cardContent: string) => void): void {
