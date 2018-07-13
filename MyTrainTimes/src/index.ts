@@ -1,7 +1,8 @@
 ﻿import * as Alexa from "ask-sdk-core"
 import { Response as AlexaResponse, IntentRequest, SessionEndedRequest } from "ask-sdk-model";
 import models from "./Models"
-import moment from "moment";
+import moment, { weekdays } from "moment";
+import { log } from "util";
 
 const HELP_SPEECH = "現時点、新宿方面を行くの場合、新宿方面、と言ってください。小田原方面を行くの場合、小田原方面、と言ってください。"
     + "10分以後出発の場合、10分後、又は、10分後の新宿方面、と言ってください。"
@@ -9,44 +10,53 @@ const HELP_SPEECH = "現時点、新宿方面を行くの場合、新宿方面�
 
 const GetTrainSch = function (weekDay: string, timeBase: moment.Moment, dir: string,
     output: (speech: string, cardTitle: string, cardContent: string) => void): void {
+    try {
 
-    var IsHoliday = weekDay == "" ? (timeBase.day() == 0 || timeBase.day() == 6) : weekDay == "休日";
-    var IsUp = (dir == "UP");
-    var timeTable = IsUp ? (IsHoliday ? models.TimeTable.Holiday.UP : models.TimeTable.WeekDay.UP) :
-        (IsHoliday ? models.TimeTable.Holiday.DOWN : models.TimeTable.WeekDay.DOWN);
-    var timeLine = timeBase.format("HHmm").replace(/^00/, '24').replace(/^01/, '25');
-    var speech = "";
-    var cardTitle = timeBase.format("HH:mm") + "から出発：";
-    for (var i = 0; i < timeTable.length; i++) {
-        var item = timeTable[i];
+        if (weekDay == "あす" || weekDay == "あした" || weekDay == "明日") {
+            timeBase = timeBase.add(1, "days");
+            weekDay = "";
+        }
 
-        if (item.tm > timeLine) {
-            speech += item.tm.substring(0, 2).replace(/^0{1}/, '').replace("24", "0").replace("25", "1") + "時" +
-                item.tm.substring(2).replace(/^0{1}/, '') + "分です。";
+        var IsHoliday = weekDay == "" ? (timeBase.day() == 0 || timeBase.day() == 6) : weekDay == "休日";
+        var IsUp = (dir == "UP");
+        var timeTable = IsUp ? (IsHoliday ? models.TimeTable.Holiday.UP : models.TimeTable.WeekDay.UP) :
+            (IsHoliday ? models.TimeTable.Holiday.DOWN : models.TimeTable.WeekDay.DOWN);
+        var timeLine = timeBase.format("HHmm").replace(/^00/, '24').replace(/^01/, '25');
+        var speech = "";
+        var cardTitle = "[" + (IsHoliday ? "休日" : "平日") + "]" + timeBase.format("HH:mm") + "から出発：";
+        for (var i = 0; i < timeTable.length; i++) {
+            var item = timeTable[i];
 
-            if (IsUp) {
-                if (item.ntm !== "") {
-                    var train = "快速急行";
-                    if (item.typ !== "") {
-                        train = item.typ;
+            if (item.tm > timeLine) {
+                speech += item.tm.substring(0, 2).replace(/^0{1}/, '').replace("24", "0").replace("25", "1") + "時" +
+                    item.tm.substring(2).replace(/^0{1}/, '') + "分です。";
+
+                if (IsUp) {
+                    if (item.ntm !== "") {
+                        var train = "快速急行";
+                        if (item.typ !== "") {
+                            train = item.typ;
+                        }
+
+                        speech += "あと、新百合ヶ丘駅に" + item.ntm + "の" + train + "を乗り換えできます。";
                     }
 
-                    speech += "あと、新百合ヶ丘駅に" + item.ntm + "の" + train + "を乗り換えできます。";
+                    if (item.cm !== "") {
+                        speech += item.cm;
+                    }
                 }
-
-                if (item.cm !== "") {
-                    speech += item.cm;
-                }
+                break;
             }
-            break;
         }
-    }
 
-    if ((timeBase.date() == 0 || timeBase.date() == 1) && speech == "") {
-        speech = "最終便に乗れなかった。"
-    }
+        if ((timeBase.date() == 0 || timeBase.date() == 1) && speech == "") {
+            speech = "最終便に乗れなかった。"
+        }
 
-    output(speech, cardTitle, speech);
+        output(speech, cardTitle, speech);
+    } catch (ex) {
+        console.log("GetTrainSch***" + ex);
+    }
 };
 
 const GetDir = function (handlerInput: Alexa.HandlerInput): string {
@@ -85,30 +95,33 @@ const GetTimeBase = function (handlerInput: Alexa.HandlerInput): moment.Moment {
     } if (fromTime != undefined) {
         timeBase = moment(fromTime, ["HH:mm"], "ja-JP");
     }
-
     return timeBase;
 };
 
 const CheckSoltValue = function (request: IntentRequest): boolean {
 
-    var station = request.intent.slots.Station.value;
-    var afterMinute = request.intent.slots.AfterMinute.value;
-    var fromTime = request.intent.slots.FromTime.value;
-    var WeekDay = request.intent.slots.WeekDay.value;
 
-    if (station == undefined && afterMinute == undefined && fromTime == undefined && WeekDay == undefined) {
-        return false;
+    try {
+        var station = request.intent.slots.Station.value;
+        var afterMinute = request.intent.slots.AfterMinute.value;
+        var fromTime = request.intent.slots.FromTime.value;
+        var WeekDay = request.intent.slots.WeekDay.value;
+        if (station == undefined && afterMinute == undefined && fromTime == undefined && WeekDay == undefined) {
+            return false;
+        }
+        if (afterMinute != undefined && isNaN(parseInt(afterMinute))) {
+            console.log("atferminute is a  NaN.");
+            return false;
+        }
+
+        if (WeekDay != undefined && WeekDay != "平日" && WeekDay != "休日" && WeekDay != "明日" && WeekDay != "あす" && WeekDay != "あした") {
+            return false;
+        }
+
+        return true;
+    } catch (ex) {
+        console.log("CheckSoltValue:::" + ex);
     }
-
-    if (afterMinute != undefined && parseInt(afterMinute) == NaN) {
-        return false;
-    }
-
-    if (WeekDay != "平日" && WeekDay != "休日") {
-        return false;
-    }
-
-    return true;
 }
 
 const ErrorIntentHandler: Alexa.ErrorHandler = {
@@ -139,7 +152,7 @@ const CheckTrainTimeIntentHandler: Alexa.RequestHandler = {
         var weekDay = (<IntentRequest>handlerInput.requestEnvelope.request).intent.slots.WeekDay.value;
         var timeBase = GetTimeBase(handlerInput);
         var _speech = "", _cardTitle = "", _cardContent = "";
-
+        console.log(timeBase);
         GetTrainSch(weekDay, timeBase, dir, (speech, cardTitle, cardContent) => {
             _speech = speech;
             _cardTitle = cardTitle;
@@ -186,7 +199,7 @@ const DoFinishIntentHandler: Alexa.RequestHandler = {
     handle(handlerInput: Alexa.HandlerInput): AlexaResponse {
         return handlerInput.responseBuilder
             .withSimpleCard("じゃね", "ご利用ありがとうございました。")
-            .speak("じゃね、またよろしく。")
+            .speak("じゃね、後でまた話しましょう。")
             .getResponse();
     }
 };
@@ -220,9 +233,9 @@ const LaunchRequestHandler: Alexa.RequestHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
+        DoFinishIntentHandler,
         HelpIntentHandler,
         CheckTrainTimeIntentHandler,
-        DoFinishIntentHandler,
         NotUnderstandHandler
     ).addErrorHandlers(ErrorIntentHandler)
     .lambda();

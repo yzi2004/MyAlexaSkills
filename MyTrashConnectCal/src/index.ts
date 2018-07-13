@@ -63,13 +63,13 @@ const DoFinishIntentHandler: Alexa.RequestHandler = {
     canHandle(handlerInput: Alexa.HandlerInput): boolean {
         return handlerInput.requestEnvelope.request.type === "IntentRequest" &&
             (handlerInput.requestEnvelope.request.intent.name === "AMAZON.CancelIntent" ||
-            handlerInput.requestEnvelope.request.intent.name === "FinishIntent" ||
+                handlerInput.requestEnvelope.request.intent.name === "FinishIntent" ||
                 handlerInput.requestEnvelope.request.intent.name === "AMAZON.StopIntent");
     },
 
     handle(handlerInput: Alexa.HandlerInput): AlexaResponse {
         return handlerInput.responseBuilder
-            .speak("ザイジェン")
+            .speak("ザイジェン、後でまた話しましょう")
             .getResponse();
     }
 };
@@ -89,9 +89,22 @@ const LaunchRequestHandler: Alexa.RequestHandler = {
         return handlerInput.responseBuilder
             .speak(_speech)
             .withSimpleCard(_cardTitle, "")
-            .reprompt("明日も調査でしょうか")
+            .reprompt("明日の収集種類も確認でしょうか？")
             .getResponse();
     },
+};
+
+const NotUnderstandHandler: Alexa.RequestHandler = {
+    canHandle(handlerInput: Alexa.HandlerInput): boolean {
+        return true;
+    },
+
+    handle(handlerInput: Alexa.HandlerInput): AlexaResponse {
+        return handlerInput.responseBuilder
+            .speak("すみません、よくわかりません。")
+            .reprompt("明日の収集種類も確認でしょうか？")
+            .getResponse();
+    }
 };
 
 const ErrorIntentHandler: Alexa.ErrorHandler = {
@@ -110,7 +123,8 @@ const ErrorIntentHandler: Alexa.ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
+        DoFinishIntentHandler,
         CheckTomorrowIntentHandler,
-        DoFinishIntentHandler
+        NotUnderstandHandler
     ).addErrorHandlers(ErrorIntentHandler)
     .lambda();

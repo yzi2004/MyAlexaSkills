@@ -1,5 +1,5 @@
 ﻿import * as Alexa from "ask-sdk-core"
-import { Response as AlexaResponse, IntentRequest, SessionEndedRequest } from "ask-sdk-model";
+import { Response as AlexaResponse, IntentRequest, SessionEndedRequest, services } from "ask-sdk-model";
 import * as SyncRequest from "sync-request";
 import { cast, Castable } from '@bitr/castable';
 
@@ -79,7 +79,7 @@ const GetWeatherCityID = function (city: string): string {
         default:
             return "140010";
     }
-}
+};
 
 const GetWeatherData = function (city: string): string {
     var response = SyncRequest.default(
@@ -110,7 +110,7 @@ const GetWeatherData = function (city: string): string {
     speechText += pubTime.getMinutes().toString() + "分です。";
 
     return speechText;
-}
+};
 
 const DoFinishIntentHandler: Alexa.RequestHandler = {
     canHandle(handlerInput: Alexa.HandlerInput): boolean {
@@ -123,16 +123,14 @@ const DoFinishIntentHandler: Alexa.RequestHandler = {
     handle(handlerInput: Alexa.HandlerInput): AlexaResponse {
         return handlerInput.responseBuilder
             .withSimpleCard("じゃね", "ご利用ありがとうございました。まだよろしく。")
-            .speak("じゃね、まだよろしく。")
+            .speak("じゃね、後でまた話しましょう。")
             .getResponse();
     }
 };
 
 const WeatherRequestHandler: Alexa.RequestHandler = {
     canHandle(handlerInput: Alexa.HandlerInput): boolean {
-        return (handlerInput.requestEnvelope.request.type === 'LaunchRequest') || (
-            handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === "LocalWeatherIntent");
+        return (handlerInput.requestEnvelope.request.type === 'LaunchRequest');
     },
     async  handle(handlerInput: Alexa.HandlerInput): Promise<AlexaResponse> {
         var area = "140010";
@@ -148,9 +146,8 @@ const WeatherRequestHandler: Alexa.RequestHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt("別場所を探しているか？")
             .getResponse();
-    },
+    }
 };
 
 exports.handler = Alexa.SkillBuilders.custom()
