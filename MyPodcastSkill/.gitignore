@@ -2,5 +2,5 @@ bin/
 obj/
 dist/
 node_modules/
-NHKPodcastSkill.njsproj
-NHKPodcastSkill.njsproj.user
+MyPodcastSkill.njsproj
+MyPodcastSkill.njsproj.user
