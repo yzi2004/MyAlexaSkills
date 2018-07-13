@@ -1,0 +1,19 @@
+{
+  "name": "my-train-times",
+  "version": "0.0.0",
+  "description": "MyTrainTimes",
+  "main": "index.js",
+  "author": {
+    "name": "stream651_g-yo"
+  },
+  "dependencies": {
+    "ask-sdk-core": "2.0.7",
+    "ask-sdk-model": "1.3.1",
+    "moment": "2.22.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "ts-node": "7.0.0",
+    "typescript": "^2.9.2"
+  }
+}

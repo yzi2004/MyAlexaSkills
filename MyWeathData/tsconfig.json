@@ -1,0 +1,14 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "outDir": "dist/",
+    "experimentalDecorators": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

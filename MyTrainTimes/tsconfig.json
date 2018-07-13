@@ -1,0 +1,15 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "alwaysStrict": true,
+    "outDir": "dist/"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+
+}

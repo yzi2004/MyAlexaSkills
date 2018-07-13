@@ -1,0 +1,16 @@
+{
+  "name": "my-weather-data",
+  "version": "0.1.0",
+  "description": "MyWeatherData",
+  "main": "index.js",
+  "author": {
+    "name": "jerry.yang"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.1",
+    "ask-sdk-core": "^2.0.7",
+    "ask-sdk-model": "^1.3.1",
+    "sync-request": "6.0.0",
+    "@bitr/castable": "1.0.3"
+  }
+}
